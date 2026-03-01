@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api'
+  baseURL: 'https://movie-rating-app-q5k2.onrender.com/api'
 });
 
 // Automatically attach token to every request if user is logged in
