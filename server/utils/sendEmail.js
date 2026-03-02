@@ -13,7 +13,8 @@ const sendEmail = async (toEmail, otp) => {
     tls: {
       // This forces the connection even if there are certificate/IPv6 resolution issues
       rejectUnauthorized: false
-    }
+    },
+    family: 4 // Force IPv4, can help with some network issues
   });
 
   // Keep the verify block, it's great for debugging!
