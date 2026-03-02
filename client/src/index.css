@@ -30,3 +30,19 @@ a { text-decoration: none; color: inherit; }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+/* Responsive Navbar */
+@media (max-width: 768px) {
+  nav .desktop-links {
+    display: none !important;
+  }
+  nav .hamburger-btn {
+    display: block !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu {
+    display: none !important;
+  }
+}
