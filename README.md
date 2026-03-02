@@ -179,6 +179,13 @@ The app will open at `http://localhost:3000`
 
 ---
 
+## 🌐 Live Demo
+
+- **Frontend** — https://movie-rating-app-pied.vercel.app
+- **Backend API** — https://movie-rating-app-q5k2.onrender.com
+
+---
+
 ## 🌐 Deployment
 
 - **Backend** — [Render](https://render.com) (free tier)
