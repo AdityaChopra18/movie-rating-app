@@ -39,7 +39,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Links */}
-        <div style={styles.desktopLinks}>
+        <div className="desktop-links" style={styles.desktopLinks}>
           <Link to="/search" style={styles.link}>Search</Link>
           {user ? (
             <>
@@ -55,7 +55,7 @@ const Navbar = () => {
         </div>
 
         {/* Hamburger Button — mobile only */}
-        <button
+        <button className="hamburger-btn"
           onClick={() => setMenuOpen(!menuOpen)}
           style={styles.hamburger}
         >
@@ -65,7 +65,7 @@ const Navbar = () => {
 
       {/* Mobile Menu Overlay */}
       {menuOpen && (
-        <div style={styles.mobileMenu}>
+        <div  className="mobile-menu" style={styles.mobileMenu}>
           <Link to="/search" onClick={closeMenu} style={styles.mobileLink}>
             Search
           </Link>
@@ -218,16 +218,16 @@ const styles = {
 };
 
 // Inject responsive CSS
-const styleTag = document.createElement('style');
-styleTag.innerHTML = `
-  @media (max-width: 768px) {
-    .desktop-links { display: none !important; }
-    .hamburger-btn { display: block !important; }
-  }
-  @media (min-width: 769px) {
-    .mobile-menu { display: none !important; }
-  }
-`;
-document.head.appendChild(styleTag);
+// const styleTag = document.createElement('style');
+// styleTag.innerHTML = `
+//   @media (max-width: 768px) {
+//     .desktop-links { display: none !important; }
+//     .hamburger-btn { display: block !important; }
+//   }
+//   @media (min-width: 769px) {
+//     .mobile-menu { display: none !important; }
+//   }
+// `;
+// document.head.appendChild(styleTag);
 
 export default Navbar;
