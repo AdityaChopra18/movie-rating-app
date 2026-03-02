@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 const sendEmail = async (toEmail, otp) => {
   const transporter = nodemailer.createTransport({
     // service: 'gmail', // Adding this helps Nodemailer auto-configure correct settings
-    host: 'stm-relay.brevo.com',
+    host: 'stmp-relay.brevo.com',
     port: 587,        // Changed from 465
     secure: false,    // Must be false for port 587 (uses STARTTLS)
     auth: {
