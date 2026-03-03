@@ -14,7 +14,7 @@ A full-stack movie rating platform built with the MERN stack. Honest ratings by 
 - 🔍 **Search** movies, TV shows, anime, and documentaries via OMDB API
 - ⭐ **Rate & Review** any title (1–5 stars + text review)
 - 🔐 **Secure signup** — instant registration with bcrypt password hashing and JWT authentication
-- 🛡️ **Anti-review bombing protection** — rate limiting, account age checks, anomaly detection
+- 🛡️ **Anti-review bombing protection** — rate limiting, anomaly detection
 - 🎯 **Recommendation system** — personalized picks, trending, genre-based, and top rated
 - 👁️ **Public viewing** — anyone can browse and read reviews without an account
 
