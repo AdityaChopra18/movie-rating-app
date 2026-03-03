@@ -72,8 +72,8 @@ router.post('/:imdbId', protect, async (req, res) => {
     const { imdbId } = req.params;
 
     // ── Anti-bombing Check 1: Account age (1 hour) ──
-    // const accountAge = Date.now() - new Date(req.user.createdAt).getTime();
-    // const hoursOld = accountAge / (1000 * 60 * 60);
+    const accountAge = Date.now() - new Date(req.user.createdAt).getTime();
+    const hoursOld = accountAge / (1000 * 60 * 60);
     
     // if (hoursOld < 1) {
     //   return res.status(403).json({ 
