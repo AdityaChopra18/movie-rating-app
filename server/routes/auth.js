@@ -17,44 +17,40 @@ router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    // Hash the password — never store plain text
     const hashedPassword = await bcrypt.hash(password, 10);
-    // 10 is "salt rounds" — how many times it scrambles the password
 
-    // Generate OTP and set expiry (10 mins from now)
-    const otp = generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-
-    // Create user but not verified yet
     const user = new User({
       username,
       email,
       password: hashedPassword,
-      isVerified: false,
-      otp: {
-        code: otp,
-        expiresAt: otpExpiry
-      }
+      isVerified: true,  // ← auto verified, no OTP needed
     });
 
     await user.save();
 
-    // Send OTP email
-    await sendEmail(email, otp);
+    // Log in immediately after register
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     res.status(201).json({
-      message: 'Registration started! Check your email for OTP.',
-      email // send back so frontend knows where OTP was sent
+      message: 'Account created successfully!',
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
     });
 
   } catch (err) {
-    console.log(err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
