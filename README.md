@@ -13,7 +13,7 @@ A full-stack movie rating platform built with the MERN stack. Honest ratings by 
 
 - 🔍 **Search** movies, TV shows, anime, and documentaries via OMDB API
 - ⭐ **Rate & Review** any title (1–5 stars + text review)
-- 🔐 **OTP-based signup** — email verification required to post reviews
+- 🔐 **Secure signup** — instant registration with bcrypt password hashing and JWT authentication
 - 🛡️ **Anti-review bombing protection** — rate limiting, account age checks, anomaly detection
 - 🎯 **Recommendation system** — personalized picks, trending, genre-based, and top rated
 - 👁️ **Public viewing** — anyone can browse and read reviews without an account
@@ -116,8 +116,7 @@ The app will open at `http://localhost:3000`
 ### Auth
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/auth/register` | Register with email + password, sends OTP |
-| POST | `/api/auth/verify-otp` | Verify OTP, returns JWT token |
+| POST | `/api/auth/register` | Register instantly, returns JWT token |
 | POST | `/api/auth/login` | Login, returns JWT token |
 
 ### Movies
