@@ -72,14 +72,14 @@ router.post('/:imdbId', protect, async (req, res) => {
     const { imdbId } = req.params;
 
     // ── Anti-bombing Check 1: Account age (1 hour) ──
-    const accountAge = Date.now() - new Date(req.user.createdAt).getTime();
-    const hoursOld = accountAge / (1000 * 60 * 60);
+    // const accountAge = Date.now() - new Date(req.user.createdAt).getTime();
+    // const hoursOld = accountAge / (1000 * 60 * 60);
     
-    if (hoursOld < 1) {
-      return res.status(403).json({ 
-        message: 'Your account must be at least 1 hour old to post reviews' 
-      });
-    }
+    // if (hoursOld < 1) {
+    //   return res.status(403).json({ 
+    //     message: 'Your account must be at least 1 hour old to post reviews' 
+    //   });
+    // }
 
     // ── Anti-bombing Check 2: Daily review limit (10/day) ──
     const today = new Date();
