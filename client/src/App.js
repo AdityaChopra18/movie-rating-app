@@ -8,6 +8,7 @@ import MovieDetail from './pages/MovieDetail';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </div>
         <Footer />

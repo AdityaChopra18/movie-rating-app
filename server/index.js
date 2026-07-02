@@ -26,6 +26,9 @@ mongoose.connect(process.env.MONGO_URI)
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
+const userRoutes = require('./routes/users');
+app.use('/api/users', userRoutes);
+
 // Test route
 app.get('/', (req, res) => {
   res.send('Movie Rating API is running!');

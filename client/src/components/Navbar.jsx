@@ -43,7 +43,7 @@ const Navbar = () => {
           <Link to="/search" style={styles.link}>Search</Link>
           {user ? (
             <>
-              <span style={styles.username}>@{user.username}</span>
+              <Link to="/dashboard" style={{...styles.link, color: 'var(--muted)', fontWeight: 'bold'}}>@{user.username}</Link>
               <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
             </>
           ) : (
@@ -71,7 +71,9 @@ const Navbar = () => {
           </Link>
           {user ? (
             <>
-              <span style={styles.mobileUsername}>@{user.username}</span>
+              <Link to="/dashboard" onClick={closeMenu} style={styles.mobileLink}>
+                Dashboard
+              </Link>
               <button onClick={handleLogout} style={styles.mobileLogoutBtn}>
                 Logout
               </button>
