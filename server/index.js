@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || origin.startsWith('http://localhost') || origin.endsWith('vercel.app')) {
+    if (!origin || origin.startsWith('http://localhost') || origin.endsWith('vercel.app') || origin.includes('movierater.qzz.io')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
