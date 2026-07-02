@@ -6,6 +6,10 @@
   box-sizing: border-box;
 }
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 :root {
   --red: #ff2d2d;
   --red-dark: #c0392b;

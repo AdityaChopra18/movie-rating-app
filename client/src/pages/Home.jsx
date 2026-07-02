@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import MovieCard from '../components/MovieCard';
+import Carousel from '../components/Carousel';
 
 const Home = () => {
   const [topRated, setTopRated] = useState([]);
@@ -81,11 +82,11 @@ const Home = () => {
         {trending.length === 0 ? (
           <p style={styles.empty}>No trending movies yet — start rating!</p>
         ) : (
-          <div style={styles.scrollRow}>
+          <Carousel>
             {trending.map(movie => (
               <MovieCard key={movie._id} movie={movie} />
             ))}
-          </div>
+          </Carousel>
         )}
       </section>
 
@@ -98,11 +99,11 @@ const Home = () => {
         {topRated.length === 0 ? (
           <p style={styles.empty}>No rated movies yet — be the first!</p>
         ) : (
-          <div style={styles.scrollRow}>
+          <Carousel>
             {topRated.map(movie => (
               <MovieCard key={movie._id} movie={movie} />
             ))}
-          </div>
+          </Carousel>
         )}
       </section>
 
