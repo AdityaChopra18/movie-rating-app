@@ -1,20 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 
 const Search = () => {
   const [query, setQuery] = useState('');
+  const [year, setYear] = useState('');
+  const [type, setType] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+
+  const [activeTab, setActiveTab] = useState('search');
+  const [exploreGenre, setExploreGenre] = useState('All');
+  const [exploreSort, setExploreSort] = useState('highest_rated');
+  const [exploreResults, setExploreResults] = useState([]);
+  const [exploreLoading, setExploreLoading] = useState(false);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (activeTab === 'explore') {
+      const fetchExplore = async () => {
+        setExploreLoading(true);
+        try {
+          const res = await api.get(`/movies/explore?genre=${exploreGenre}&sort=${exploreSort}`);
+          setExploreResults(res.data || []);
+        } catch (err) {
+          console.log(err);
+        } finally {
+          setExploreLoading(false);
+        }
+      };
+      fetchExplore();
+    }
+  }, [activeTab, exploreGenre, exploreSort]);
 
   const handleSearch = async () => {
     if (!query.trim()) return;
     setLoading(true);
     setSearched(true);
+    let url = `/movies/search?title=${query}`;
+    if (year) url += `&year=${year}`;
+    if (type) url += `&type=${type}`;
     try {
-      const res = await api.get(`/movies/search?title=${query}`);
+      const res = await api.get(url);
       setResults(res.data.movies || []);
     } catch (err) {
       setResults([]);
@@ -38,84 +67,202 @@ const Search = () => {
 
       {/* Search Header */}
       <div style={styles.header}>
-        <p style={styles.eyebrow}>Find anything</p>
-        <h1 style={styles.title}>SEARCH MOVIES</h1>
-
-        <div style={styles.searchRow}>
-          <input
-            type="text"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSearch()}
-            placeholder="Inception, The Dark Knight, Interstellar..."
-            style={styles.input}
-            autoFocus
-          />
-          <button
-            onClick={handleSearch}
-            disabled={loading}
-            style={{ ...styles.searchBtn, opacity: loading ? 0.6 : 1 }}
+        <div style={styles.tabsRow}>
+          <button 
+            onClick={() => setActiveTab('search')} 
+            style={activeTab === 'search' ? styles.activeTabBtn : styles.tabBtn}
           >
-            {loading ? '...' : 'SEARCH'}
+            Web Search
+          </button>
+          <button 
+            onClick={() => setActiveTab('explore')} 
+            style={activeTab === 'explore' ? styles.activeTabBtn : styles.tabBtn}
+          >
+            Explore Community
           </button>
         </div>
+
+        {activeTab === 'search' ? (
+          <>
+            <h1 style={styles.title}>SEARCH MOVIES</h1>
+
+          <div style={styles.searchRow}>
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              placeholder="Inception, The Dark Knight, Interstellar..."
+              style={styles.input}
+              autoFocus
+            />
+            <button
+              onClick={handleSearch}
+              disabled={loading}
+              style={{ ...styles.searchBtn, opacity: loading ? 0.6 : 1 }}
+            >
+              {loading ? '...' : 'SEARCH'}
+            </button>
+          </div>
+          <div style={styles.filterRow}>
+            <input 
+              type="number" 
+              placeholder="Year (e.g. 2023)" 
+              value={year} 
+              onChange={e => setYear(e.target.value)}
+              style={styles.filterInput}
+            />
+            <select 
+              value={type} 
+              onChange={e => setType(e.target.value)}
+              style={styles.filterSelect}
+            >
+              <option value="">All Types</option>
+              <option value="movie">Movie</option>
+              <option value="series">Series</option>
+            </select>
+          </div>
+        </>
+        ) : (
+          <>
+            <h1 style={styles.title}>EXPLORE FAVORITES</h1>
+            <div style={styles.filterRow}>
+              <select 
+                value={exploreGenre}
+                onChange={e => setExploreGenre(e.target.value)}
+                style={styles.filterSelect}
+              >
+                <option value="All">All Genres</option>
+                <option value="Action">Action</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Drama">Drama</option>
+                <option value="Horror">Horror</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Romance">Romance</option>
+                <option value="Thriller">Thriller</option>
+              </select>
+              
+              <select 
+                value={exploreSort}
+                onChange={e => setExploreSort(e.target.value)}
+                style={styles.filterSelect}
+              >
+                <option value="highest_rated">Highest Rated</option>
+                <option value="most_reviewed">Most Reviewed</option>
+                <option value="newest">Newest Releases</option>
+              </select>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Results */}
       <div style={styles.content}>
-        {loading && (
-          <div style={styles.center}>
-            <p style={styles.loadingText}>SEARCHING...</p>
-          </div>
-        )}
-
-        {!loading && searched && results.length === 0 && (
-          <div style={styles.center}>
-            <p style={styles.noResults}>No movies found for "{query}"</p>
-            <p style={styles.noResultsSub}>Try a different title</p>
-          </div>
-        )}
-
-        {!loading && !searched && (
-          <div style={styles.center}>
-            <p style={styles.hint}>🎬 Search for any movie above</p>
-          </div>
-        )}
-
-        {!loading && results.length > 0 && (
+        {activeTab === 'search' ? (
           <>
-            <p style={styles.resultCount}>
-              {results.length} results for "{query}"
-            </p>
-            <div style={styles.grid}>
-              {results.map(movie => (
-                <div
-                  key={movie.imdbID}
-                  onClick={() => handleMovieClick(movie.imdbID)}
-                  style={styles.card}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-6px)';
-                    e.currentTarget.style.borderColor = '#ff2d2d44';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.borderColor = '#1a1a1a';
-                  }}
-                >
-                  <img
-                    src={movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/120x180/111/333?text=?'}
-                    alt={movie.Title}
-                    style={styles.poster}
-                  />
-                  <div style={styles.info}>
-                    <h3 style={styles.movieTitle}>{movie.Title}</h3>
-                    <p style={styles.year}>{movie.Year}</p>
-                    <p style={styles.type}>{movie.Type}</p>
-                    <span style={styles.viewBtn}>View Details →</span>
-                  </div>
+            {loading && (
+              <div style={styles.center}>
+                <p style={styles.loadingText}>SEARCHING...</p>
+              </div>
+            )}
+
+            {!loading && searched && results.length === 0 && (
+              <div style={styles.center}>
+                <p style={styles.noResults}>No movies found for "{query}"</p>
+                <p style={styles.noResultsSub}>Try a different title</p>
+              </div>
+            )}
+
+            {!loading && !searched && (
+              <div style={styles.center}>
+                <p style={styles.hint}>🎬 Search for any movie above</p>
+              </div>
+            )}
+
+            {!loading && results.length > 0 && (
+              <>
+                <p style={styles.resultCount}>
+                  {results.length} results for "{query}"
+                </p>
+                <div style={styles.grid}>
+                  {results.map(movie => (
+                    <div
+                      key={movie.imdbID}
+                      onClick={() => handleMovieClick(movie.imdbID)}
+                      style={styles.card}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.transform = 'translateY(-6px)';
+                        e.currentTarget.style.borderColor = '#ff2d2d44';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.borderColor = '#1a1a1a';
+                      }}
+                    >
+                      <img
+                        src={movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/120x180/111/333?text=?'}
+                        alt={movie.Title}
+                        style={styles.poster}
+                      />
+                      <div style={styles.info}>
+                        <h3 style={styles.movieTitle}>{movie.Title}</h3>
+                        <p style={styles.year}>{movie.Year}</p>
+                        <p style={styles.type}>{movie.Type}</p>
+                        <span style={styles.viewBtn}>View Details →</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            {exploreLoading && (
+              <div style={styles.center}>
+                <p style={styles.loadingText}>LOADING...</p>
+              </div>
+            )}
+            {!exploreLoading && exploreResults.length === 0 && (
+              <div style={styles.center}>
+                <p style={styles.noResults}>No movies found matching these filters.</p>
+              </div>
+            )}
+            {!exploreLoading && exploreResults.length > 0 && (
+              <div style={styles.grid}>
+                {exploreResults.map(movie => (
+                  <div
+                    key={movie.tmdbId}
+                    onClick={() => handleMovieClick(movie.tmdbId)}
+                    style={styles.card}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = 'translateY(-6px)';
+                      e.currentTarget.style.borderColor = '#ff2d2d44';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.borderColor = '#1a1a1a';
+                    }}
+                  >
+                    <img
+                      src={movie.posterUrl !== 'N/A' ? movie.posterUrl : 'https://via.placeholder.com/120x180/111/333?text=?'}
+                      alt={movie.title}
+                      style={styles.poster}
+                    />
+                    <div style={styles.info}>
+                      <h3 style={styles.movieTitle}>{movie.title}</h3>
+                      <p style={styles.year}>{movie.releaseYear}</p>
+                      {movie.averageRating > 0 && (
+                        <p style={{ color: '#f5c518', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+                          ⭐ {movie.averageRating}
+                        </p>
+                      )}
+                      <span style={styles.viewBtn}>View Details →</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </>
         )}
       </div>
@@ -175,6 +322,62 @@ const styles = {
     fontSize: '0.85rem',
     letterSpacing: '2px',
     transition: 'opacity 0.2s'
+  },
+  filterRow: {
+    display: 'flex',
+    gap: '1rem',
+    marginTop: '1rem',
+    maxWidth: '600px'
+  },
+  filterInput: {
+    backgroundColor: '#111',
+    border: '1px solid #222',
+    color: '#f0f0f0',
+    padding: '0.6rem 1rem',
+    borderRadius: '2px',
+    fontSize: '0.9rem',
+    fontFamily: "'DM Sans', sans-serif",
+    width: '120px',
+    outline: 'none'
+  },
+  filterSelect: {
+    backgroundColor: '#111',
+    border: '1px solid #222',
+    color: '#f0f0f0',
+    padding: '0.6rem 1rem',
+    borderRadius: '2px',
+    fontSize: '0.9rem',
+    fontFamily: "'DM Sans', sans-serif",
+    outline: 'none',
+    flex: 1
+  },
+  tabsRow: {
+    display: 'flex',
+    gap: '2rem',
+    marginBottom: '2rem',
+    borderBottom: '1px solid #222',
+    paddingBottom: '0.5rem'
+  },
+  tabBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#888',
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    padding: '0.5rem 0',
+    letterSpacing: '1px'
+  },
+  activeTabBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#ff2d2d',
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    padding: '0.5rem 0',
+    letterSpacing: '1px',
+    borderBottom: '2px solid #ff2d2d'
   },
   content: {
     padding: '2rem 3rem'

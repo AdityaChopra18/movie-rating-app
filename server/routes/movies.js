@@ -9,20 +9,22 @@ const protect = require('../middleware/protect');
 // ─────────────────────────────────────────
 router.get('/search', async (req, res) => {
   try {
-    const { title } = req.query;
+    const { title, year, type } = req.query;
 
     if (!title) {
       return res.status(400).json({ message: 'Please provide a title to search' });
     }
 
+    const params = {
+      apikey: process.env.OMDB_API_KEY,
+      s: title
+    };
+    
+    if (year) params.y = year;
+    if (type) params.type = type;
+
     // Fetch from OMDB API
-    const response = await axios.get(`http://www.omdbapi.com/`, {
-      params: {
-        apikey: process.env.OMDB_API_KEY,
-        s: title,        // s = search by title
-      
-      }
-    });
+    const response = await axios.get(`http://www.omdbapi.com/`, { params });
 
     if (response.data.Response === 'False') {
       return res.status(404).json({ message: 'No movies found' });
@@ -33,6 +35,29 @@ router.get('/search', async (req, res) => {
       totalResults: response.data.totalResults
     });
 
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────
+// EXPLORE LOCAL MOVIES — GET /api/movies/explore
+// ─────────────────────────────────────────
+router.get('/explore', async (req, res) => {
+  try {
+    const { genre, sort } = req.query;
+    
+    let query = {};
+    if (genre && genre !== 'All') {
+      query.genre = { $regex: new RegExp(genre, 'i') };
+    }
+    
+    let sortObj = { averageRating: -1 }; 
+    if (sort === 'most_reviewed') sortObj = { totalRatings: -1 };
+    else if (sort === 'newest') sortObj = { releaseYear: -1 };
+    
+    const movies = await Movie.find(query).sort(sortObj).limit(24);
+    res.json(movies);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
