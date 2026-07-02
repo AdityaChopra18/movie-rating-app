@@ -181,6 +181,36 @@ router.get('/:imdbId', async (req, res) => {
 });
 
 // ─────────────────────────────────────────
+// UPDATE REVIEW — PUT /api/reviews/:id
+// ─────────────────────────────────────────
+router.put('/:id', protect, async (req, res) => {
+  try {
+    const { rating, reviewText } = req.body;
+    const review = await Review.findById(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({ message: 'Review not found' });
+    }
+
+    if (review.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to edit this review' });
+    }
+
+    if (rating) review.rating = rating;
+    if (reviewText !== undefined) review.reviewText = reviewText;
+
+    await review.save();
+    
+    await updateMovieRating(review.movie);
+
+    res.json({ message: 'Review updated successfully', review });
+
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────
 // DELETE REVIEW — DELETE /api/reviews/:id
 // ─────────────────────────────────────────
 router.delete('/:id', protect, async (req, res) => {

@@ -17,6 +17,7 @@ const MovieDetail = () => {
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -50,18 +51,36 @@ const MovieDetail = () => {
     }
     setSubmitting(true);
     try {
-      await api.post(`/reviews/${imdbId}`, { rating, reviewText });
-      toast.success('Review posted!');
+      if (editingReviewId) {
+        await api.put(`/reviews/${editingReviewId}`, { rating, reviewText });
+        toast.success('Review updated!');
+      } else {
+        await api.post(`/reviews/${imdbId}`, { rating, reviewText });
+        toast.success('Review posted!');
+      }
       // Refresh reviews
       const res = await api.get(`/reviews/${imdbId}`);
       setReviews(res.data.reviews || []);
-      setRating(0);
-      setReviewText('');
+      if (!editingReviewId) {
+        setRating(0);
+        setReviewText('');
+      } else {
+        setEditingReviewId(null);
+        setRating(0);
+        setReviewText('');
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Error posting review');
+      toast.error(err.response?.data?.message || 'Error saving review');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleEditClick = (review) => {
+    setEditingReviewId(review._id);
+    setRating(review.rating);
+    setReviewText(review.reviewText || '');
+    window.scrollTo({ top: 500, behavior: 'smooth' });
   };
 
   if (loading) return (
@@ -147,7 +166,9 @@ const MovieDetail = () => {
 
         {/* Write Review */}
         <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>WRITE A REVIEW</h2>
+          <h2 style={styles.sectionTitle}>
+            {editingReviewId ? 'EDIT YOUR REVIEW' : 'WRITE A REVIEW'}
+          </h2>
           {!user ? (
             <div style={styles.loginPrompt}>
               <p style={{ color: '#666', marginBottom: '1rem' }}>
@@ -156,6 +177,12 @@ const MovieDetail = () => {
               <button onClick={() => navigate('/signup')} style={styles.loginBtn}>
                 Sign Up to Review
               </button>
+            </div>
+          ) : user && reviews.some(r => r.user?._id === user._id) && !editingReviewId ? (
+            <div style={styles.loginPrompt}>
+              <p style={{ color: '#666', marginBottom: '1rem' }}>
+                You have already reviewed this movie.
+              </p>
             </div>
           ) : (
             <div style={styles.reviewForm}>
@@ -200,8 +227,20 @@ const MovieDetail = () => {
                     opacity: submitting ? 0.6 : 1
                   }}
                 >
-                  {submitting ? 'Posting...' : 'Post Review'}
+                  {submitting ? (editingReviewId ? 'Updating...' : 'Posting...') : (editingReviewId ? 'Update Review' : 'Post Review')}
                 </button>
+                {editingReviewId && (
+                  <button
+                    onClick={() => {
+                      setEditingReviewId(null);
+                      setRating(0);
+                      setReviewText('');
+                    }}
+                    style={{ ...styles.submitBtn, backgroundColor: '#333', marginLeft: '10px' }}
+                  >
+                    Cancel
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -224,6 +263,14 @@ const MovieDetail = () => {
                     <span style={styles.reviewDate}>
                       {new Date(review.createdAt).toLocaleDateString()}
                     </span>
+                    {user && user._id === review.user?._id && (
+                      <button 
+                        onClick={() => handleEditClick(review)}
+                        style={styles.editBtn}
+                      >
+                        Edit
+                      </button>
+                    )}
                   </div>
                   {review.reviewText && (
                     <p style={styles.reviewText}>{review.reviewText}</p>
@@ -567,6 +614,17 @@ const styles = {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis'
+  },
+  editBtn: {
+    backgroundColor: '#333',
+    color: '#fff',
+    border: 'none',
+    padding: '0.3rem 0.8rem',
+    borderRadius: '2px',
+    cursor: 'pointer',
+    fontSize: '0.75rem',
+    marginLeft: 'auto',
+    transition: 'background-color 0.2s'
   }
 };
 
