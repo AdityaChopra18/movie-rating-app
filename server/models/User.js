@@ -35,7 +35,15 @@ const userSchema = new mongoose.Schema({
   },
   lastReviewDate: {
     type: Date          // used to reset daily review count
-  }
+  },
+  watchlist: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Movie'
+  }],
+  favorites: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Movie'
+  }]
 });
 
 module.exports = mongoose.model('User', userSchema);

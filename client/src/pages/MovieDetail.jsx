@@ -18,6 +18,9 @@ const MovieDetail = () => {
   const [reviewText, setReviewText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [editingReviewId, setEditingReviewId] = useState(null);
+  const [isWatchlisted, setIsWatchlisted] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [listUpdating, setListUpdating] = useState(false);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -30,6 +33,18 @@ const MovieDetail = () => {
         setMovie(movieRes.data);
         setReviews(reviewRes.data.reviews || []);
         setSimilar(similarRes.data.recommendations || []);
+        
+        if (user && movieRes.data) {
+          try {
+            const userRes = await api.get('/users/me/dashboard');
+            const watchlist = userRes.data.user.watchlist || [];
+            const favorites = userRes.data.user.favorites || [];
+            setIsWatchlisted(watchlist.some(m => (m._id || m) === movieRes.data._id));
+            setIsFavorited(favorites.some(m => (m._id || m) === movieRes.data._id));
+          } catch (e) {
+            console.log('Error fetching user lists', e);
+          }
+        }
       } catch (err) {
         console.log(err);
       } finally {
@@ -37,7 +52,31 @@ const MovieDetail = () => {
       }
     };
     fetchAll();
-  }, [imdbId]);
+  }, [imdbId, user]);
+
+  const toggleList = async (type) => {
+    if (!user) {
+      toast.error('Please login to save movies!');
+      navigate('/login');
+      return;
+    }
+    setListUpdating(true);
+    try {
+      if (type === 'watchlist') {
+        const res = await api.post(`/users/me/watchlist/${movie._id}`);
+        setIsWatchlisted(res.data.isWatchlisted);
+        toast.success(res.data.message);
+      } else {
+        const res = await api.post(`/users/me/favorites/${movie._id}`);
+        setIsFavorited(res.data.isFavorited);
+        toast.success(res.data.message);
+      }
+    } catch (err) {
+      toast.error('Error updating list');
+    } finally {
+      setListUpdating(false);
+    }
+  };
 
   const handleSubmitReview = async () => {
     if (!user) {
@@ -119,6 +158,22 @@ const MovieDetail = () => {
             ))}
           </div>
           <h1 style={styles.title}>{movie.title}</h1>
+          <div style={styles.actionRow}>
+            <button 
+              onClick={() => toggleList('watchlist')} 
+              disabled={listUpdating}
+              style={{ ...styles.actionBtn, borderColor: isWatchlisted ? '#ff2d2d' : '#333', color: isWatchlisted ? '#ff2d2d' : '#fff' }}
+            >
+              {isWatchlisted ? '➖ Remove from Watchlist' : '➕ Add to Watchlist'}
+            </button>
+            <button 
+              onClick={() => toggleList('favorites')} 
+              disabled={listUpdating}
+              style={{ ...styles.actionBtn, borderColor: isFavorited ? '#ff2d2d' : '#333', color: isFavorited ? '#ff2d2d' : '#fff' }}
+            >
+              {isFavorited ? '❤️ Favorited' : '🤍 Add to Favorites'}
+            </button>
+          </div>
           <p style={styles.meta}>
             {movie.director && <span>Dir. {movie.director}</span>}
             {movie.releaseYear && <span> · {movie.releaseYear}</span>}
@@ -384,6 +439,26 @@ const styles = {
     lineHeight: 1,
     marginBottom: '0.5rem',
     color: '#fff'
+  },
+  actionRow: {
+    display: 'flex',
+    gap: '1rem',
+    marginBottom: '1.5rem',
+    flexWrap: 'wrap'
+  },
+  actionBtn: {
+    background: 'rgba(10,10,10,0.5)',
+    border: '1px solid #333',
+    padding: '0.5rem 1rem',
+    borderRadius: '2px',
+    cursor: 'pointer',
+    fontSize: '0.8rem',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    transition: 'all 0.2s',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
   },
   meta: {
     color: '#555',

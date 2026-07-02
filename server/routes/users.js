@@ -21,7 +21,10 @@ const updateMovieRating = async (movieId) => {
 // GET /api/users/me/dashboard
 router.get('/me/dashboard', protect, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
+    const user = await User.findById(req.user._id)
+      .select('-password')
+      .populate('watchlist')
+      .populate('favorites');
     const totalReviews = await Review.countDocuments({ user: req.user._id });
     
     const recentReviews = await Review.find({ user: req.user._id })
@@ -30,6 +33,48 @@ router.get('/me/dashboard', protect, async (req, res) => {
       .populate('movie', 'title tmdbId');
 
     res.json({ user, stats: { totalReviews }, recentReviews });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST /api/users/me/watchlist/:movieId
+router.post('/me/watchlist/:movieId', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const movieId = req.params.movieId;
+    
+    const index = user.watchlist.indexOf(movieId);
+    let isWatchlisted = false;
+    if (index === -1) {
+      user.watchlist.push(movieId);
+      isWatchlisted = true;
+    } else {
+      user.watchlist.splice(index, 1);
+    }
+    await user.save();
+    res.json({ isWatchlisted, message: isWatchlisted ? 'Added to watchlist' : 'Removed from watchlist' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST /api/users/me/favorites/:movieId
+router.post('/me/favorites/:movieId', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const movieId = req.params.movieId;
+    
+    const index = user.favorites.indexOf(movieId);
+    let isFavorited = false;
+    if (index === -1) {
+      user.favorites.push(movieId);
+      isFavorited = true;
+    } else {
+      user.favorites.splice(index, 1);
+    }
+    await user.save();
+    res.json({ isFavorited, message: isFavorited ? 'Added to favorites' : 'Removed from favorites' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }

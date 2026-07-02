@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import Carousel from '../components/Carousel';
+import MovieCard from '../components/MovieCard';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -59,6 +61,32 @@ const Dashboard = () => {
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Your Stats</h2>
           <p style={styles.text}><strong>Total Reviews Posted:</strong> {data?.stats?.totalReviews}</p>
+        </div>
+
+        <div style={styles.card}>
+          <h2 style={styles.cardTitle}>My Watchlist</h2>
+          {(!data?.user?.watchlist || data.user.watchlist.length === 0) ? (
+            <p style={styles.text}>Your watchlist is empty.</p>
+          ) : (
+            <Carousel>
+              {data.user.watchlist.map(movie => (
+                <MovieCard key={movie._id} movie={movie} />
+              ))}
+            </Carousel>
+          )}
+        </div>
+
+        <div style={styles.card}>
+          <h2 style={styles.cardTitle}>My Favorites</h2>
+          {(!data?.user?.favorites || data.user.favorites.length === 0) ? (
+            <p style={styles.text}>You have no favorites yet.</p>
+          ) : (
+            <Carousel>
+              {data.user.favorites.map(movie => (
+                <MovieCard key={movie._id} movie={movie} />
+              ))}
+            </Carousel>
+          )}
         </div>
 
         <div style={styles.card}>
