@@ -178,7 +178,7 @@ const MovieDetail = () => {
                 Sign Up to Review
               </button>
             </div>
-          ) : user && reviews.some(r => r.user?._id === user._id) && !editingReviewId ? (
+          ) : user && reviews.some(r => r.user?._id === (user.id || user._id)) && !editingReviewId ? (
             <div style={styles.loginPrompt}>
               <p style={{ color: '#666', marginBottom: '1rem' }}>
                 You have already reviewed this movie.
@@ -263,7 +263,7 @@ const MovieDetail = () => {
                     <span style={styles.reviewDate}>
                       {new Date(review.createdAt).toLocaleDateString()}
                     </span>
-                    {user && user._id === review.user?._id && (
+                    {user && (user.id || user._id) === review.user?._id && (
                       <button 
                         onClick={() => handleEditClick(review)}
                         style={styles.editBtn}
