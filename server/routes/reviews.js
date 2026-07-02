@@ -68,7 +68,7 @@ const checkReviewBombing = async (movieId) => {
 // ─────────────────────────────────────────
 router.post('/:imdbId', protect, async (req, res) => {
   try {
-    const { rating, reviewText } = req.body;
+    const { rating, reviewText, containsSpoilers } = req.body;
     const { imdbId } = req.params;
 
     // ── Anti-bombing Check 1: Account age (1 hour) ──
@@ -121,7 +121,8 @@ router.post('/:imdbId', protect, async (req, res) => {
       movie: movie._id,
       user: req.user._id,
       rating,
-      reviewText
+      reviewText,
+      containsSpoilers: containsSpoilers || false
     });
 
     await review.save();
@@ -186,7 +187,7 @@ router.get('/:imdbId', async (req, res) => {
 // ─────────────────────────────────────────
 router.put('/:id', protect, async (req, res) => {
   try {
-    const { rating, reviewText } = req.body;
+    const { rating, reviewText, containsSpoilers } = req.body;
     const review = await Review.findById(req.params.id);
 
     if (!review) {
@@ -199,6 +200,7 @@ router.put('/:id', protect, async (req, res) => {
 
     if (rating) review.rating = rating;
     if (reviewText !== undefined) review.reviewText = reviewText;
+    if (containsSpoilers !== undefined) review.containsSpoilers = containsSpoilers;
 
     await review.save();
     

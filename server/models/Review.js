@@ -31,7 +31,11 @@ const reviewSchema = new mongoose.Schema({
   upvotes: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  containsSpoilers: {
+    type: Boolean,
+    default: false
+  }
 }, { timestamps: true });
 
 // One user can only review a movie once

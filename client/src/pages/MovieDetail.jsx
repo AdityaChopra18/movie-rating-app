@@ -21,6 +21,8 @@ const MovieDetail = () => {
   const [isWatchlisted, setIsWatchlisted] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [listUpdating, setListUpdating] = useState(false);
+  const [containsSpoilers, setContainsSpoilers] = useState(false);
+  const [revealedSpoilers, setRevealedSpoilers] = useState({});
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -107,23 +109,19 @@ const MovieDetail = () => {
     setSubmitting(true);
     try {
       if (editingReviewId) {
-        await api.put(`/reviews/${editingReviewId}`, { rating, reviewText });
+        await api.put(`/reviews/${editingReviewId}`, { rating, reviewText, containsSpoilers });
         toast.success('Review updated!');
       } else {
-        await api.post(`/reviews/${imdbId}`, { rating, reviewText });
+        await api.post(`/reviews/${imdbId}`, { rating, reviewText, containsSpoilers });
         toast.success('Review posted!');
       }
       // Refresh reviews
       const res = await api.get(`/reviews/${imdbId}`);
       setReviews(res.data.reviews || []);
-      if (!editingReviewId) {
-        setRating(0);
-        setReviewText('');
-      } else {
-        setEditingReviewId(null);
-        setRating(0);
-        setReviewText('');
-      }
+      setEditingReviewId(null);
+      setRating(0);
+      setReviewText('');
+      setContainsSpoilers(false);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Error saving review');
     } finally {
@@ -135,6 +133,7 @@ const MovieDetail = () => {
     setEditingReviewId(review._id);
     setRating(review.rating);
     setReviewText(review.reviewText || '');
+    setContainsSpoilers(review.containsSpoilers || false);
     window.scrollTo({ top: 500, behavior: 'smooth' });
   };
 
@@ -289,29 +288,41 @@ const MovieDetail = () => {
                 maxLength={1000}
               />
               <div style={styles.formFooter}>
-                <span style={styles.charCount}>{reviewText.length}/1000</span>
-                <button
-                  onClick={handleSubmitReview}
-                  disabled={submitting}
-                  style={{
-                    ...styles.submitBtn,
-                    opacity: submitting ? 0.6 : 1
-                  }}
-                >
-                  {submitting ? (editingReviewId ? 'Updating...' : 'Posting...') : (editingReviewId ? 'Update Review' : 'Post Review')}
-                </button>
-                {editingReviewId && (
+                <label style={styles.spoilerLabel}>
+                  <input 
+                    type="checkbox" 
+                    checked={containsSpoilers}
+                    onChange={(e) => setContainsSpoilers(e.target.checked)}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  ⚠️ Contains Spoilers
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <span style={styles.charCount}>{reviewText.length}/1000</span>
                   <button
-                    onClick={() => {
-                      setEditingReviewId(null);
-                      setRating(0);
-                      setReviewText('');
+                    onClick={handleSubmitReview}
+                    disabled={submitting}
+                    style={{
+                      ...styles.submitBtn,
+                      opacity: submitting ? 0.6 : 1
                     }}
-                    style={{ ...styles.submitBtn, backgroundColor: '#333', marginLeft: '10px' }}
                   >
-                    Cancel
+                    {submitting ? (editingReviewId ? 'Updating...' : 'Posting...') : (editingReviewId ? 'Update Review' : 'Post Review')}
                   </button>
-                )}
+                  {editingReviewId && (
+                    <button
+                      onClick={() => {
+                        setEditingReviewId(null);
+                        setRating(0);
+                        setReviewText('');
+                        setContainsSpoilers(false);
+                      }}
+                      style={{ ...styles.submitBtn, backgroundColor: '#333' }}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -355,7 +366,25 @@ const MovieDetail = () => {
                     )}
                   </div>
                   {review.reviewText && (
-                    <p style={styles.reviewText}>{review.reviewText}</p>
+                    <div style={{ position: 'relative', marginTop: '0.5rem' }}>
+                      <p style={{
+                        ...styles.reviewText,
+                        filter: (review.containsSpoilers && !revealedSpoilers[review._id]) ? 'blur(5px)' : 'none',
+                        transition: 'filter 0.3s'
+                      }}>
+                        {review.reviewText}
+                      </p>
+                      {(review.containsSpoilers && !revealedSpoilers[review._id]) && (
+                        <div style={styles.spoilerOverlay}>
+                          <button 
+                            onClick={() => setRevealedSpoilers(prev => ({ ...prev, [review._id]: true }))}
+                            style={styles.revealBtn}
+                          >
+                            Reveal Spoiler
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               ))}
@@ -737,6 +766,33 @@ const styles = {
     fontSize: '0.75rem',
     fontWeight: 'bold',
     transition: 'all 0.2s'
+  },
+  spoilerLabel: {
+    color: '#ff2d2d',
+    fontSize: '0.8rem',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    userSelect: 'none'
+  },
+  spoilerOverlay: {
+    position: 'absolute',
+    inset: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  revealBtn: {
+    backgroundColor: '#ff2d2d',
+    color: '#fff',
+    border: 'none',
+    padding: '0.4rem 1rem',
+    borderRadius: '2px',
+    cursor: 'pointer',
+    fontSize: '0.8rem',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: '1px'
   }
 };
 
