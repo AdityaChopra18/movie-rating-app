@@ -28,27 +28,30 @@ router.post('/register', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const otp = generateOTP();
 
     const user = new User({
       username,
       email,
       password: hashedPassword,
-      isVerified: false,
-      otp: {
-        code: otp,
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000)
-      }
+      isVerified: true
     });
 
     await user.save();
 
-    console.log(`\n\n=== OTP FOR ${email} IS: ${otp} ===\n\n`);
-
-    await sendEmail(email, otp);
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     res.status(201).json({
-      message: 'OTP sent to your email!'
+      message: 'Account created successfully!',
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
     });
 
   } catch (err) {

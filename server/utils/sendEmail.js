@@ -4,7 +4,7 @@ const sendEmail = async (toEmail, otp) => {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   await resend.emails.send({
-    from: 'MovieRater <onboarding@movierater.qzz.io>',
+    from: 'MovieRater <onboarding@resend.dev>',
     to: toEmail,
     subject: 'Your OTP for MovieRater',
     html: `
