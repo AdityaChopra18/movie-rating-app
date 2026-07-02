@@ -38,6 +38,31 @@ router.get('/me/dashboard', protect, async (req, res) => {
   }
 });
 
+// GET /api/users/profile/:username
+router.get('/profile/:username', async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username })
+      .select('-password -email -otp -isVerified')
+      .populate('watchlist')
+      .populate('favorites');
+      
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+      
+    const totalReviews = await Review.countDocuments({ user: user._id });
+    
+    const recentReviews = await Review.find({ user: user._id })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .populate('movie', 'title tmdbId');
+
+    res.json({ user, stats: { totalReviews }, recentReviews });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // POST /api/users/me/watchlist/:movieId
 router.post('/me/watchlist/:movieId', protect, async (req, res) => {
   try {

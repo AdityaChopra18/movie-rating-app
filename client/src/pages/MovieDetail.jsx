@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -329,7 +329,7 @@ const MovieDetail = () => {
               {reviews.map(review => (
                 <div key={review._id} style={styles.reviewCard}>
                   <div style={styles.reviewHeader}>
-                    <span style={styles.reviewUser}>@{review.user?.username}</span>
+                    <Link to={`/user/${review.user?.username}`} style={styles.reviewUser}>@{review.user?.username}</Link>
                     <span style={styles.reviewRating}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
                     <span style={styles.reviewDate}>
                       {new Date(review.createdAt).toLocaleDateString()}
@@ -676,7 +676,8 @@ const styles = {
   reviewUser: {
     color: '#ff2d2d',
     fontSize: '0.85rem',
-    fontWeight: '600'
+    fontWeight: '600',
+    textDecoration: 'none'
   },
   reviewRating: {
     color: '#f5c518',
