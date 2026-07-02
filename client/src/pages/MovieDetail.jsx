@@ -78,6 +78,22 @@ const MovieDetail = () => {
     }
   };
 
+  const handleUpvote = async (reviewId) => {
+    if (!user) {
+      toast.error('Please login to upvote reviews!');
+      navigate('/login');
+      return;
+    }
+    try {
+      await api.post(`/reviews/${reviewId}/upvote`);
+      // Re-fetch to get updated sorting and counts
+      const res = await api.get(`/reviews/${imdbId}`);
+      setReviews(res.data.reviews || []);
+    } catch (err) {
+      toast.error('Error upvoting review');
+    }
+  };
+
   const handleSubmitReview = async () => {
     if (!user) {
       toast.error('Please login to post a review!');
@@ -318,6 +334,17 @@ const MovieDetail = () => {
                     <span style={styles.reviewDate}>
                       {new Date(review.createdAt).toLocaleDateString()}
                     </span>
+                    <button 
+                      onClick={() => handleUpvote(review._id)}
+                      style={{
+                        ...styles.upvoteBtn, 
+                        color: user && review.upvotes?.includes(user.id || user._id) ? '#ff2d2d' : '#888',
+                        borderColor: user && review.upvotes?.includes(user.id || user._id) ? '#ff2d2d' : '#333',
+                        marginLeft: 'auto'
+                      }}
+                    >
+                      👍 Helpful ({review.upvotes?.length || 0})
+                    </button>
                     {user && (user.id || user._id) === review.user?._id && (
                       <button 
                         onClick={() => handleEditClick(review)}
@@ -698,8 +725,17 @@ const styles = {
     borderRadius: '2px',
     cursor: 'pointer',
     fontSize: '0.75rem',
-    marginLeft: 'auto',
     transition: 'background-color 0.2s'
+  },
+  upvoteBtn: {
+    background: 'transparent',
+    border: '1px solid #333',
+    padding: '0.25rem 0.6rem',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '0.75rem',
+    fontWeight: 'bold',
+    transition: 'all 0.2s'
   }
 };
 

@@ -27,7 +27,11 @@ const reviewSchema = new mongoose.Schema({
   },
   flagReason: {
     type: String      // why it was flagged e.g. "bombing detected"
-  }
+  },
+  upvotes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 }, { timestamps: true });
 
 // One user can only review a movie once

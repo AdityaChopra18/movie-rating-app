@@ -163,9 +163,10 @@ router.get('/:imdbId', async (req, res) => {
     const reviews = await Review.find({ 
       movie: movie._id,
       isHidden: false
-    })
-    .populate('user', 'username')
-    .sort({ createdAt: -1 });
+    }).populate('user', 'username');
+
+    // Sort by upvotes count descending, then createdAt descending
+    reviews.sort((a, b) => (b.upvotes?.length || 0) - (a.upvotes?.length || 0) || b.createdAt - a.createdAt);
 
     res.json({
       movie: movie.title,
@@ -205,6 +206,31 @@ router.put('/:id', protect, async (req, res) => {
 
     res.json({ message: 'Review updated successfully', review });
 
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────
+// TOGGLE UPVOTE — POST /api/reviews/:id/upvote
+// ─────────────────────────────────────────
+router.post('/:id/upvote', protect, async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+    
+    const index = review.upvotes.indexOf(req.user._id);
+    let hasUpvoted = false;
+    
+    if (index === -1) {
+      review.upvotes.push(req.user._id);
+      hasUpvoted = true;
+    } else {
+      review.upvotes.splice(index, 1);
+    }
+    
+    await review.save();
+    res.json({ message: 'Upvote toggled', hasUpvoted, upvoteCount: review.upvotes.length });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
