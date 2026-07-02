@@ -43,6 +43,8 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
+    console.log(`\n\n=== OTP FOR ${email} IS: ${otp} ===\n\n`);
+
     await sendEmail(email, otp);
 
     res.status(201).json({
