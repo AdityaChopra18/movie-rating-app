@@ -7,7 +7,13 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin:  ['http://localhost:3000', 'https://movie-rating-app-pied.vercel.app'],
+  origin: function (origin, callback) {
+    if (!origin || origin.startsWith('http://localhost') || origin.endsWith('vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
