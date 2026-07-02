@@ -33,23 +33,23 @@ const Navbar = () => {
         borderBottom: scrolled || menuOpen ? '1px solid #1a1a1a' : '1px solid transparent'
       }}>
         {/* Logo */}
-        <Link to="/" onClick={closeMenu} style={styles.logo}>
+        <Link to="/" onClick={closeMenu} style={styles.logo} className="nav-logo">
           <span style={styles.logoAccent}>M</span>OVIE
           <span style={styles.logoAccent}>R</span>ATER
         </Link>
 
         {/* Desktop Links */}
         <div className="desktop-links" style={styles.desktopLinks}>
-          <Link to="/search" style={styles.link}>Search</Link>
+          <Link to="/search" style={styles.link} className="nav-link">Search</Link>
           {user ? (
             <>
-              <Link to="/dashboard" style={{...styles.link, color: 'var(--muted)', fontWeight: 'bold'}}>@{user.username}</Link>
-              <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
+              <Link to="/dashboard" style={{...styles.link, color: 'var(--muted)', fontWeight: 'bold'}} className="nav-link">@{user.username}</Link>
+              <button onClick={handleLogout} style={styles.logoutBtn} className="nav-logout-btn">Logout</button>
             </>
           ) : (
             <>
-              <Link to="/login" style={styles.link}>Login</Link>
-              <Link to="/signup" style={styles.signupBtn}>Join Free</Link>
+              <Link to="/login" style={styles.link} className="nav-link">Login</Link>
+              <Link to="/signup" style={styles.signupBtn} className="nav-btn">Join Free</Link>
             </>
           )}
         </div>
