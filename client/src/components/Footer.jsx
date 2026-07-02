@@ -14,6 +14,7 @@ const Footer = () => {
           <Link to="/" style={styles.link}>Home</Link>
           <Link to="/search" style={styles.link}>Search Movies</Link>
           <Link to="/signup" style={styles.link}>Sign Up</Link>
+          <Link to="/privacy" style={styles.link}>Privacy Policy</Link>
         </div>
         <p style={styles.copyright}>
           &copy; {new Date().getFullYear()} MovieRater. All rights reserved.

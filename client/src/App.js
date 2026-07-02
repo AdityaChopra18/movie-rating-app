@@ -7,6 +7,7 @@ import Search from './pages/Search';
 import MovieDetail from './pages/MovieDetail';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/movie/:imdbId" element={<MovieDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
           </Routes>
         </div>
         <Footer />
