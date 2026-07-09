@@ -64,6 +64,18 @@ router.get('/explore', async (req, res) => {
 });
 
 // ─────────────────────────────────────────
+// GET MOVIES RATED COUNT — GET /api/movies/stats/count
+// ─────────────────────────────────────────
+router.get('/stats/count', async (req, res) => {
+  try {
+    const count = await Movie.countDocuments({ totalRatings: { $gt: 0 } });
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────
 // GET SINGLE MOVIE DETAILS — GET /api/movies/:imdbId
 // ─────────────────────────────────────────
 router.get('/:imdbId', async (req, res) => {

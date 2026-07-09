@@ -7,17 +7,20 @@ import Carousel from '../components/Carousel';
 const Home = () => {
   const [topRated, setTopRated] = useState([]);
   const [trending, setTrending] = useState([]);
+  const [totalRated, setTotalRated] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [topRes, trendRes] = await Promise.all([
+        const [topRes, trendRes, countRes] = await Promise.all([
           api.get('/recommendations/toprated'),
-          api.get('/recommendations/trending')
+          api.get('/recommendations/trending'),
+          api.get('/movies/stats/count')
         ]);
         setTopRated(topRes.data.movies);
         setTrending(trendRes.data.movies);
+        setTotalRated(countRes.data.count);
       } catch (err) {
         console.log(err);
       } finally {
@@ -58,7 +61,7 @@ const Home = () => {
       {/* Stats Bar */}
       <div style={styles.statsBar}>
         <div style={styles.stat}>
-          <span style={styles.statNum}>{topRated.length + trending.length}</span>
+          <span style={styles.statNum}>{totalRated}</span>
           <span style={styles.statLabel}>Movies Rated</span>
         </div>
         <div style={styles.statDivider} />
