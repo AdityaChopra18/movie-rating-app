@@ -8,6 +8,8 @@ const Signup = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -24,11 +26,25 @@ const Signup = () => {
     setLoading(true);
     try {
       const res = await api.post('/auth/register', { username, email, password });
+      toast.success(res.data.message || 'OTP sent! Please check your email.');
+      setOtpSent(true);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otp) return toast.error('Please enter the OTP');
+    setLoading(true);
+    try {
+      const res = await api.post('/auth/verify-otp', { email, otp });
       login(res.data.user, res.data.token);
       toast.success('Welcome to MovieRater! 🎬');
       navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+      toast.error(err.response?.data?.message || 'Invalid OTP');
     } finally {
       setLoading(false);
     }
@@ -38,50 +54,77 @@ const Signup = () => {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.top}>
-          <p style={styles.eyebrow}>Create account</p>
-          <h1 style={styles.title}>SIGN UP</h1>
+          <p style={styles.eyebrow}>{otpSent ? 'Verify your email' : 'Create account'}</p>
+          <h1 style={styles.title}>{otpSent ? 'ENTER OTP' : 'SIGN UP'}</h1>
         </div>
 
-        <div style={styles.form}>
-          <div style={styles.field}>
-            <label style={styles.label}>USERNAME</label>
-            <input
-              type="text"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              placeholder="cooluser123"
-              style={styles.input}
-            />
+        {!otpSent ? (
+          <div style={styles.form}>
+            <div style={styles.field}>
+              <label style={styles.label}>USERNAME</label>
+              <input
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder="cooluser123"
+                style={styles.input}
+              />
+            </div>
+            <div style={styles.field}>
+              <label style={styles.label}>EMAIL</label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                style={styles.input}
+              />
+            </div>
+            <div style={styles.field}>
+              <label style={styles.label}>PASSWORD</label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="min 6 characters"
+                style={styles.input}
+                onKeyDown={e => e.key === 'Enter' && handleRegister()}
+              />
+            </div>
+            <button
+              onClick={handleRegister}
+              disabled={loading}
+              style={{ ...styles.btn, opacity: loading ? 0.6 : 1 }}
+            >
+              {loading ? 'Sending OTP...' : 'Create Account →'}
+            </button>
           </div>
-          <div style={styles.field}>
-            <label style={styles.label}>EMAIL</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              style={styles.input}
-            />
+        ) : (
+          <div style={styles.form}>
+            <p style={{ color: '#aaa', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center' }}>
+              We sent a 6-digit code to <strong style={{color: '#fff'}}>{email}</strong>
+            </p>
+            <div style={styles.field}>
+              <label style={styles.label}>OTP CODE</label>
+              <input
+                type="text"
+                value={otp}
+                onChange={e => setOtp(e.target.value)}
+                placeholder="123456"
+                style={{ ...styles.input, fontSize: '1.5rem', letterSpacing: '8px', textAlign: 'center' }}
+                maxLength={6}
+                onKeyDown={e => e.key === 'Enter' && handleVerifyOTP()}
+              />
+            </div>
+            <button
+              onClick={handleVerifyOTP}
+              disabled={loading}
+              style={{ ...styles.btn, opacity: loading ? 0.6 : 1 }}
+            >
+              {loading ? 'Verifying...' : 'Verify & Login →'}
+            </button>
           </div>
-          <div style={styles.field}>
-            <label style={styles.label}>PASSWORD</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="min 6 characters"
-              style={styles.input}
-              onKeyDown={e => e.key === 'Enter' && handleRegister()}
-            />
-          </div>
-          <button
-            onClick={handleRegister}
-            disabled={loading}
-            style={{ ...styles.btn, opacity: loading ? 0.6 : 1 }}
-          >
-            {loading ? 'Creating account...' : 'Create Account →'}
-          </button>
-        </div>
+        )}
 
         <p style={styles.footer}>
           Already have an account?{' '}
