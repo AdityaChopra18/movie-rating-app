@@ -1,0 +1,13 @@
+{
+  "routes": [
+    {
+      "src": "^/.*\\.(exe|apk|zip|rar|php|pdf|gz|tar|sh)$",
+      "status": 404
+    },
+    { "handle": "filesystem" },
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+    }
+  ]
+}
