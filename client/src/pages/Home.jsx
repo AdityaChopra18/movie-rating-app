@@ -64,20 +64,20 @@ const Home = () => {
       </div>
 
       {/* Stats Bar */}
-      <div style={styles.statsBar}>
-        <div style={styles.stat}>
-          <span style={styles.statNum}>{totalRated}</span>
-          <span style={styles.statLabel}>Movies Rated</span>
+      <div className="stats-bar">
+        <div className="stat">
+          <span className="stat-num">{totalRated}</span>
+          <span className="stat-label">Movies Rated</span>
         </div>
-        <div style={styles.statDivider} />
-        <div style={styles.stat}>
-          <span style={styles.statNum}>100%</span>
-          <span style={styles.statLabel}>Verified Reviews</span>
+        <div className="stat-divider" />
+        <div className="stat">
+          <span className="stat-num">100%</span>
+          <span className="stat-label">Verified Reviews</span>
         </div>
-        <div style={styles.statDivider} />
-        <div style={styles.stat}>
-          <span style={styles.statNum}>0</span>
-          <span style={styles.statLabel}>Paid Promotions</span>
+        <div className="stat-divider" />
+        <div className="stat">
+          <span className="stat-num">0</span>
+          <span className="stat-label">Paid Promotions</span>
         </div>
       </div>
 
@@ -222,39 +222,11 @@ const styles = {
     background: 'linear-gradient(to right, transparent, #ff2d2d22)',
     transform: 'rotate(-20deg)'
   },
-  statsBar: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 'clamp(1rem, 4vw, 3rem)',
-    padding: '2rem 1rem',
-    borderTop: '1px solid #1a1a1a',
-    borderBottom: '1px solid #1a1a1a',
-    backgroundColor: '#0d0d0d'
-  },
-  stat: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '0.3rem'
-  },
-  statNum: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: '2rem',
-    color: '#ff2d2d',
-    letterSpacing: '2px'
-  },
   statLabel: {
     fontSize: '0.7rem',
     letterSpacing: '2px',
     textTransform: 'uppercase',
     color: '#444'
-  },
-  statDivider: {
-    width: '1px',
-    height: '40px',
-    backgroundColor: '#1a1a1a'
   },
   section: {
     padding: '3rem 2rem'
