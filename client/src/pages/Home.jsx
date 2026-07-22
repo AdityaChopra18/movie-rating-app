@@ -224,10 +224,11 @@ const styles = {
   },
   statsBar: {
     display: 'flex',
+    flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '3rem',
-    padding: '2rem',
+    gap: 'clamp(1rem, 4vw, 3rem)',
+    padding: '2rem 1rem',
     borderTop: '1px solid #1a1a1a',
     borderBottom: '1px solid #1a1a1a',
     backgroundColor: '#0d0d0d'
