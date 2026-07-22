@@ -11,9 +11,15 @@ export const AuthProvider = ({ children }) => {
     // Check if user was already logged in
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
-    if (savedToken && savedUser) {
+    if (savedToken && savedUser && savedUser !== 'undefined') {
       setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (err) {
+        console.error("Failed to parse user from local storage:", err);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
     }
     setLoading(false);
   }, []);
