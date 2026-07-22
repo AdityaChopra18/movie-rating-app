@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import api from '../utils/api';
 import MovieCard from '../components/MovieCard';
 import Carousel from '../components/Carousel';
@@ -38,15 +39,19 @@ const Home = () => {
 
   return (
     <div style={styles.container}>
+      <Helmet>
+        <title>MovieRater - Discover, Rate & Review Movies Online</title>
+        <meta name="description" content="Join the best community to discover, rate, and review movies online. Create your watchlist and share your honest film ratings!" />
+      </Helmet>
 
       {/* Hero */}
       <div style={styles.hero}>
         <div style={styles.heroNoise} />
         <div style={styles.heroContent}>
-          <p style={styles.heroEyebrow}>The honest review platform</p>
-          <h1 style={styles.heroTitle}>MOVIES RATED<br />BY REAL PEOPLE</h1>
+          <p style={styles.heroEyebrow}>The honest community movie reviews platform</p>
+          <h1 style={styles.heroTitle}>RATE MOVIES ONLINE<br />WITH REAL PEOPLE</h1>
           <p style={styles.heroSub}>
-            No paid reviews. No manipulation.<br />Protected against review bombing.
+            Discover the best films. Read authentic community ratings.<br />Protected against review bombing.
           </p>
           <div style={styles.heroBtns}>
             <Link to="/search" style={styles.primaryBtn}>Explore Movies</Link>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 import Carousel from '../components/Carousel';
@@ -37,6 +38,10 @@ const UserProfile = () => {
 
   return (
     <div style={styles.container}>
+      <Helmet>
+        <title>{data.user.username}'s Movie Reviews & Watchlist - MovieRater</title>
+        <meta name="description" content={`Check out ${data.user.username}'s favorite movies, reviews, and ratings on MovieRater.`} />
+      </Helmet>
       <div style={styles.content}>
         <h1 style={styles.title}>@{data.user.username.toUpperCase()}'S PROFILE</h1>
         

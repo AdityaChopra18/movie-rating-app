@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import api from '../utils/api';
 
 const Search = () => {
@@ -64,6 +65,10 @@ const Search = () => {
 
   return (
     <div style={styles.container}>
+      <Helmet>
+        <title>Search Movies & Community Reviews - MovieRater</title>
+        <meta name="description" content="Search for any movie or explore trending community favorites on MovieRater." />
+      </Helmet>
 
       {/* Search Header */}
       <div style={styles.header}>

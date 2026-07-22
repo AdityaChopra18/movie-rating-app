@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -151,6 +152,10 @@ const MovieDetail = () => {
 
   return (
     <div style={styles.container}>
+      <Helmet>
+        <title>{movie.title} {movie.releaseYear ? `(${movie.releaseYear})` : ''} - Reviews & Ratings on MovieRater</title>
+        <meta name="description" content={`Read honest community reviews and ratings for ${movie.title}. ${movie.description?.slice(0, 100)}...`} />
+      </Helmet>
 
       {/* Backdrop */}
       <div style={{
