@@ -5,13 +5,17 @@ require('dotenv').config();
 
 const app = express();
 
+// Lightweight health check endpoints for Render and cron-job.org
+app.get('/health', (req, res) => res.status(200).send('OK'));
+app.get('/ping', (req, res) => res.status(200).send('OK'));
+
 app.use(express.json());
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || origin.startsWith('http://localhost') || origin.endsWith('vercel.app') || origin.includes('movierater.qzz.io')) {
+    if (!origin || origin.startsWith('http://localhost') || origin.endsWith('vercel.app') || origin.includes('movierater.qzz.io') || origin.includes('cron-job.org')) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, false);
     }
   },
   credentials: true
@@ -29,16 +33,6 @@ app.use('/api/auth', authRoutes);
 const userRoutes = require('./routes/users');
 app.use('/api/users', userRoutes);
 
-// Test route
-app.get('/', (req, res) => {
-  res.send('Movie Rating API is running!');
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 const movieRoutes = require('./routes/movies');
 app.use('/api/movies', movieRoutes);
 
@@ -47,3 +41,13 @@ app.use('/api/reviews', reviewRoutes);
 
 const recommendationRoutes = require('./routes/recommendations');
 app.use('/api/recommendations', recommendationRoutes);
+
+// Test route
+app.get('/', (req, res) => {
+  res.send('Movie Rating API is running!');
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
